@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fce8ec; /* Fundo principal em rosa claro bem suave */
+        }
+        form {
+            background: #ffffff; /* Caixa do formulário em branco */
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(224, 159, 159, 0.15);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid #f7d6dc;
+        }
+        h2 {
+            text-align: center;
+            color: #b86b77; /* Título em um tom de rosa mais escuro e elegante */
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input {
+            padding: 12px;
+            border: 1px solid #f0cbd1;
+            border-radius: 8px;
+            background-color: #fff9fa;
+            font-size: 14px;
+            color: #4a4a4a;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #e09f9f; /* Rosa claro em destaque ao clicar */
+        }
+        button {
+            padding: 12px;
+            background: #e09f9f; /* Botão principal em rosa claro */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #d48787; /* Tom de rosa um pouco mais forte ao passar o mouse */
+        }
+    </style>
+</head>
+<body>
+
+    <form id="formCadastro">
+        <h2>Criar Conta</h2>
+        <input type="text" id="nome" placeholder="Nome Completo" required>
+        <input type="text" id="nomeUsuario" placeholder="Nome de Usuário" required>
+        <input type="email" id="email" placeholder="E-mail" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+        <input type="date" id="dataNascimento" required>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('formCadastro');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const dados = {
+                nome: document.getElementById('nome').value,
+                nomeUsuario: document.getElementById('nomeUsuario').value,
+                email: document.getElementById('email').value,
+                senha: document.getElementById('senha').value,
+                dataNascimento: document.getElementById('dataNascimento').value
+            };
+
+            const resposta = await fetch('/api/registrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json();
+
+            if (resposta.ok) {
+                alert(resultado.mensagem);
+                form.reset();
+            } else {
+                alert(resultado.erro);
+            }
+        });
+    </script>
+
+</body>
+</html>
