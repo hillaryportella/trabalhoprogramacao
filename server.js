@@ -1,5 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -13,11 +14,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const usuarios = [];
+const ARQUIVO_USUARIOS = path.join(__dirname, 'usuarios.json');
+
+function lerUsuarios() {
+    if (!fs.existsSync(ARQUIVO_USUARIOS)) {
+        return [];
+    }
+    const dados = fs.readFileSync(ARQUIVO_USUARIOS, 'utf-8');
+    try {
+        return JSON.parse(dados);
+    } catch (e) {
+        return [];
+    }
+}
+
+function salvarUsuarios(usuarios) {
+    fs.writeFileSync(ARQUIVO_USUARIOS, JSON.stringify(usuarios, null, 2), 'utf-8');
+}
 
 app.post('/api/registrar', async (req, res) => {
     try {
         const { nome, nomeUsuario, email, senha, dataNascimento } = req.body;
+        
+        const usuarios = lerUsuarios();
+        
         const usuarioExiste = usuarios.find(u => u.email === email || u.nomeUsuario === nomeUsuario);
         if (usuarioExiste) {
             return res.status(400).json({ erro: 'E-mail ou Nome de usuário já cadastrados!' });
@@ -36,14 +56,14 @@ app.post('/api/registrar', async (req, res) => {
         };
 
         usuarios.push(novoUsuario);
-        console.log("Usuários cadastrados:", usuarios);
+        salvarUsuarios(usuarios);
 
-        return res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
-    } catch (error) {
-        return res.status(500).json({ erro: 'Erro interno no servidor.' });
+        res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
+    } catch (erro) {
+        res.status(500).json({ erro: 'Erro interno no servidor.' });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`SERVIDOR RODANDO COM SUCESSO EM http://localhost:${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
